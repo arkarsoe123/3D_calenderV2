@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>အာကာစိုး တွက်နည်းတစ်ထောင်</title>
+    <title>အာကာစိုး တွက်နည်းတစ်ထောင် တတ်တတ်ပြောင်</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -13,18 +13,42 @@
         @import url('https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap');
         body { font-family: 'Padauk', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; overflow: hidden; }
         .app-container { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .table-wrapper { position: relative; flex: 1; overflow: auto; border-radius: 12px; margin-bottom: 5px; }
-        th, td { min-width: 50px; height: 40px; text-align: center; font-size: 13px; position: relative; padding: 0 !important; }
-        .cell-box { position: absolute; inset: 2px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; border: 0.5px solid rgba(0,0,0,0.05); }
-        .cell-selected { border: 2px solid #ef4444 !important; z-index: 40; transform: scale(1.05); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+        .table-wrapper { position: relative; flex: 1; overflow: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 5px; }
+        
+        /* ဇယားကွက်ကို မူရင်းအတိုင်းထားပြီး Width ကိုပဲ ကျစ်လျစ်အောင်လုပ်ထားသည် */
+        th, td { min-width: 48px; height: 42px; text-align: center; font-size: 13px; position: relative; padding: 0 !important; }
+        
+        .cell-box {
+            position: absolute; inset: 2px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            border: 0.5px solid rgba(0,0,0,0.05);
+        }
+        
+        /* Selection ဖြစ်တဲ့အခါ မူရင်းစတိုင်အတိုင်း Glow ဖြစ်စေရန် */
+        .cell-selected { border: 2.5px solid #2563eb !important; transform: scale(1.1); z-index: 50; box-shadow: 0 0 10px rgba(37, 99, 235, 0.3); }
+
         table { border-collapse: separate; border-spacing: 0; width: max-content; }
-        thead th { position: sticky; top: 0; z-index: 50; background-color: inherit; border-bottom: 1px solid #e2e8f0; padding: 8px 0 !important; }
-        .sticky-col { position: sticky; left: 0; z-index: 45; background-color: inherit; width: 45px !important; min-width: 45px !important; border-right: 1px solid #e2e8f0; }
+        thead th { position: sticky; top: 0; z-index: 50; background-color: inherit; border-bottom: 1px solid #e2e8f0; }
+        
+        /* အကြိမ်ရေ အတန်းကို ကွက်တိဖြစ်အောင် ညှိထားသည် */
+        .sticky-col { 
+            position: sticky; left: 0; z-index: 45; 
+            background-color: inherit; 
+            width: 42px !important; min-width: 42px !important; 
+            border-right: 1px solid #e2e8f0; 
+        }
         .sticky-corner { position: sticky; top: 0; left: 0; z-index: 60; background-color: inherit; }
-        #path-svg { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 30; overflow: visible; }
-        .connection-line { fill: none; stroke: #f59e0b; stroke-width: 2.5; stroke-dasharray: 8, 4; opacity: 0.7; }
-        .comment-dot { position: absolute; top: 2px; right: 2px; width: 5px; height: 5px; background: #ef4444; border-radius: 50%; }
-        .action-bar { border-top: 1px solid rgba(0,0,0,0.1); animation: slideUp 0.3s ease-out; }
+
+        .comment-dot { position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; border: 1px solid white; }
+        
+        /* PowerPoint Style Action Bar */
+        .action-bar {
+            border-top: 1px solid rgba(0,0,0,0.05);
+            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.1);
+            z-index: 100;
+        }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
@@ -35,19 +59,22 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
         const API_URL = 'https://sheetdb.io/api/v1/x9azbgwzmy3a7';
-        const COLORS = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#71717a', ''];
+        const VIBRANT_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#0ea5e9', '#3b82f6', '#8b5cf6', '#ec4899', '#71717a', ''];
+
+        const getContrastYIQ = (hex) => {
+            if (!hex) return 'inherit';
+            const r = parseInt(hex.substring(1,3), 16), g = parseInt(hex.substring(3,5), 16), b = parseInt(hex.substring(5,7), 16);
+            return ((r*299)+(g*587)+(b*114))/1000 >= 128 ? 'black' : 'white';
+        };
 
         const App = () => {
             const [data, setData] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [selectedId, setSelectedId] = useState(null); // PowerPoint Style Selection
+            const [selectedId, setSelectedId] = useState(null);
             const [styles, setStyles] = useState({});
             const [comments, setComments] = useState({});
             const [search, setSearch] = useState("");
             const [dark, setDark] = useState(false);
-            const [lineCoords, setLineCoords] = useState([]);
-            const tableRef = useRef(null);
-
+            
             useEffect(() => {
                 const load = async () => {
                     const cached = localStorage.getItem('la_data');
@@ -59,7 +86,7 @@
                         const res = await fetch(API_URL);
                         const json = await res.json();
                         if (Array.isArray(json)) { setData(json); localStorage.setItem('la_data', JSON.stringify(json)); }
-                    } catch (e) { console.error(e); } finally { setLoading(false); }
+                    } catch (e) { console.error(e); }
                 };
                 load();
             }, []);
@@ -81,12 +108,7 @@
                 return { map, years };
             }, [data]);
 
-            const activeNum = useMemo(() => {
-                if (search) return search;
-                if (!selectedId) return null;
-                const [y, r] = selectedId.split('-');
-                return organized.map[y]?.[r];
-            }, [selectedId, organized, search]);
+            const activeNum = search || (selectedId ? organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]] : null);
 
             const updateValue = (id, num, comm, color) => {
                 const [y, r] = id.split('-');
@@ -95,7 +117,6 @@
                 setStyles(newStyles); setComments(newComms);
                 localStorage.setItem('la_styles', JSON.stringify(newStyles));
                 localStorage.setItem('la_comments', JSON.stringify(newComms));
-
                 const newData = [...data];
                 const dateStr = `${y}-${String(Math.floor(r/2)+1).padStart(2,'0')}-${r%2===0?'01':'16'}`;
                 const idx = newData.findIndex(d => d.date === dateStr);
@@ -104,49 +125,51 @@
             };
 
             useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
                 document.body.className = dark ? 'bg-slate-950 text-slate-100 dark' : 'bg-slate-50 text-slate-900';
+                if (window.lucide) window.lucide.createIcons();
             }, [dark, selectedId]);
 
             return (
-                <div className="app-container">
-                    {/* Header */}
-                    <div className={`p-3 flex justify-between items-center ${dark ? 'bg-slate-900' : 'bg-white shadow-sm'}`}>
+                <div className="app-container p-2">
+                    {/* Original Header Style */}
+                    <div className={`flex justify-between items-center mb-2 p-2 rounded-xl shadow-sm ${dark ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i data-lucide="grid" className="w-4 h-4"></i></div>
-                            <h1 className="font-black text-blue-600 text-sm">ARKASOE</h1>
+                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i data-lucide="palette" className="w-4 h-4"></i></div>
+                            <div>
+                                <h1 className="text-sm font-black text-blue-600 leading-none">အာကာစိုး</h1>
+                                <p className="text-[9px] font-bold opacity-60 mt-0.5">တွက်နည်းတစ်ထောင်</p>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <input type="number" placeholder="ရှာရန်..." className={`px-2 py-1 rounded-md text-xs w-20 outline-none border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'}`} value={search} onChange={e => setSearch(e.target.value)} />
-                            <button onClick={() => setDark(!dark)} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800"><i data-lucide={dark ? "sun" : "moon"} className="w-4 h-4"></i></button>
-                        </div>
+                        <button onClick={() => setDark(!dark)} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800"><i data-lucide={dark ? "sun" : "moon"} className="w-4 h-4"></i></button>
                     </div>
 
-                    {/* Table Area */}
-                    <div className="table-wrapper no-scrollbar px-2">
-                        <table ref={tableRef}>
+                    {/* Table Area with Original 3D Style */}
+                    <div className={`table-wrapper no-scrollbar ${dark ? 'bg-slate-950 border border-slate-800' : 'bg-white'}`}>
+                        <table>
                             <thead>
                                 <tr className={dark ? 'bg-slate-900' : 'bg-slate-100'}>
-                                    <th className="sticky-corner sticky-col text-[10px] text-blue-600">အကြိမ်</th>
-                                    {organized.years.map(y => <th key={y} className="text-[11px] font-bold">{y}</th>)}
+                                    <th className="sticky-corner sticky-col text-blue-600 text-[10px]">အကြိမ်</th>
+                                    {organized.years.map(y => <th key={y} className="font-black text-blue-600 text-[11px] py-2">{y}</th>)}
                                 </tr>
                             </thead>
                             <tbody>
                                 {Array.from({ length: 24 }).map((_, rIdx) => (
                                     <tr key={rIdx}>
                                         <td className={`sticky-col ${dark ? 'bg-slate-900' : 'bg-white'}`}>
-                                            <span className="text-xs font-bold">{rIdx + 1}</span>
+                                            <div className="flex flex-col leading-none">
+                                                <span className="text-[12px] font-black">{rIdx + 1}</span>
+                                                <span className="text-[7px] opacity-40">{rIdx % 2 === 0 ? '၁' : '၁၆'}</span>
+                                            </div>
                                         </td>
                                         {organized.years.map(y => {
-                                            const id = `${y}-${rIdx}`;
-                                            const num = organized.map[y]?.[rIdx];
-                                            const isSelected = selectedId === id;
-                                            const isMatched = activeNum && num === activeNum;
+                                            const id = `${y}-${rIdx}`, num = organized.map[y]?.[rIdx];
+                                            const isSelected = selectedId === id, isMatched = activeNum && num === activeNum;
+                                            const bgColor = isMatched ? '#2563eb' : (styles[id] || (dark ? "#1e293b" : "#ffffff"));
                                             return (
                                                 <td key={y} onClick={() => setSelectedId(id)}>
-                                                    <div className={`cell-box ${isSelected ? 'cell-selected' : ''}`} style={{ backgroundColor: isMatched ? '#3b82f6' : (styles[id] || (dark ? '#1e293b' : '#fff')), color: (isMatched || styles[id]) ? 'white' : 'inherit' }}>
+                                                    <div className={`cell-box ${isSelected ? 'cell-selected' : ''}`} style={{ backgroundColor: bgColor, color: (isMatched || styles[id]) ? 'white' : 'inherit' }}>
                                                         <span className="font-bold">{num}</span>
-                                                        {comments[id] && <div className="comment-dot"></div>}
+                                                        {comments[id] && <div className="comment-dot" style={{borderColor: bgColor}}></div>}
                                                     </div>
                                                 </td>
                                             );
@@ -157,51 +180,48 @@
                         </table>
                     </div>
 
+                    {/* Search Bar - Original Style */}
+                    {!selectedId && (
+                        <div className={`p-2 rounded-xl border flex items-center gap-2 mb-1 ${dark ? 'bg-slate-900/90 border-slate-700' : 'bg-white/90 border-slate-200'}`}>
+                            <i data-lucide="search" className="w-3.5 h-3.5 opacity-40 ml-1"></i>
+                            <input type="number" placeholder="ရှာရန်..." className="bg-transparent w-full outline-none text-xs font-bold" value={search} onChange={e => setSearch(e.target.value)} />
+                        </div>
+                    )}
+
                     {/* Action Bar (PowerPoint Style) */}
-                    {selectedId ? (
-                        <div className={`action-bar p-3 pb-6 space-y-3 ${dark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)]'}`}>
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold opacity-50 uppercase tracking-widest">{selectedId.split('-')[0]} ခုနှစ် / အကြိမ် {parseInt(selectedId.split('-')[1])+1}</span>
-                                <button onClick={() => setSelectedId(null)} className="text-xs font-bold text-blue-600">DONE</button>
+                    {selectedId && (
+                        <div className={`action-bar p-3 pb-8 rounded-t-3xl shadow-2xl ${dark ? 'bg-slate-900 border-t border-slate-700' : 'bg-white'}`}>
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                                    {selectedId.split('-')[0]} - အကြိမ် ({parseInt(selectedId.split('-')[1]) + 1})
+                                </span>
+                                <button onClick={() => setSelectedId(null)} className="text-xs font-black text-slate-400">DONE</button>
                             </div>
                             
-                            <div className="flex gap-3 items-center">
-                                {/* Number Input */}
+                            <div className="flex gap-2 mb-4">
                                 <input 
-                                    type="number" 
-                                    className={`w-16 h-10 text-center font-black text-xl rounded-lg border-2 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
+                                    type="number" className={`w-16 h-12 text-center font-black text-2xl rounded-xl border-2 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
                                     value={organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]] || ""}
                                     onChange={(e) => updateValue(selectedId, e.target.value, comments[selectedId], styles[selectedId])}
-                                    placeholder="--"
                                 />
-                                
-                                {/* Comment Input */}
                                 <input 
-                                    type="text"
-                                    className={`flex-1 h-10 px-3 text-xs rounded-lg border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}
-                                    placeholder="မှတ်ချက်ရေးရန်..."
-                                    value={comments[selectedId] || ""}
+                                    type="text" className={`flex-1 h-12 px-4 text-sm rounded-xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}
+                                    placeholder="မှတ်ချက်ရေးရန်..." value={comments[selectedId] || ""}
                                     onChange={(e) => updateValue(selectedId, organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]], e.target.value, styles[selectedId])}
                                 />
                             </div>
 
-                            {/* Quick Color Palette */}
-                            <div className="flex justify-between items-center gap-1 overflow-x-auto no-scrollbar py-1">
-                                {COLORS.map(c => (
+                            <div className="flex justify-between overflow-x-auto no-scrollbar gap-2">
+                                {VIBRANT_COLORS.map(c => (
                                     <button 
-                                        key={c}
-                                        onClick={() => updateValue(selectedId, organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]], comments[selectedId], c)}
-                                        className="w-8 h-8 rounded-full border-2 border-white shrink-0 shadow-sm"
+                                        key={c} onClick={() => updateValue(selectedId, organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]], comments[selectedId], c)}
+                                        className="w-9 h-9 rounded-full border-2 border-white shrink-0 shadow-sm transition-transform active:scale-90"
                                         style={{ background: c || (dark ? '#334155' : '#e2e8f0') }}
                                     >
                                         {!c && <i data-lucide="slash" className="w-3 h-3 mx-auto opacity-30"></i>}
                                     </button>
                                 ))}
                             </div>
-                        </div>
-                    ) : (
-                        <div className={`p-4 text-center text-[10px] font-bold opacity-30 ${dark ? 'bg-slate-950' : 'bg-slate-50'}`}>
-                            ပြင်ဆင်ရန် ဇယားကွက်တစ်ခုကို နှိပ်ပါ
                         </div>
                     )}
                 </div>
