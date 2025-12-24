@@ -11,46 +11,154 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap');
-        body { font-family: 'Padauk', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; overflow: hidden; }
-        .app-container { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .table-wrapper { position: relative; flex: 1; overflow: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 5px; }
         
-        /* ဇယားကွက်ကို မူရင်းအတိုင်းထားပြီး Width ကိုပဲ ကျစ်လျစ်အောင်လုပ်ထားသည် */
-        th, td { min-width: 48px; height: 42px; text-align: center; font-size: 13px; position: relative; padding: 0 !important; }
-        
+        body {
+            font-family: 'Padauk', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            position: relative;
+            flex: 1;
+            overflow: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        th, td {
+            min-width: 65px; 
+            height: 48px;     
+            text-align: center;
+            font-size: 14px;
+            position: relative;
+        }
+
         .cell-box {
-            position: absolute; inset: 2px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 6px; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            position: absolute;
+            inset: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1), 
+                        inset 1px 1px 1px rgba(255,255,255,0.4);
             border: 0.5px solid rgba(0,0,0,0.05);
         }
-        
-        /* Selection ဖြစ်တဲ့အခါ မူရင်းစတိုင်အတိုင်း Glow ဖြစ်စေရန် */
-        .cell-selected { border: 2.5px solid #2563eb !important; transform: scale(1.1); z-index: 50; box-shadow: 0 0 10px rgba(37, 99, 235, 0.3); }
 
-        table { border-collapse: separate; border-spacing: 0; width: max-content; }
-        thead th { position: sticky; top: 0; z-index: 50; background-color: inherit; border-bottom: 1px solid #e2e8f0; }
-        
-        /* အကြိမ်ရေ အတန်းကို ကွက်တိဖြစ်အောင် ညှိထားသည် */
-        .sticky-col { 
-            position: sticky; left: 0; z-index: 45; 
-            background-color: inherit; 
-            width: 42px !important; min-width: 42px !important; 
-            border-right: 1px solid #e2e8f0; 
+        /* Hover/Active Effect */
+        .cell-box:active {
+            transform: scale(1.05);
+            z-index: 10;
         }
-        .sticky-corner { position: sticky; top: 0; left: 0; z-index: 60; background-color: inherit; }
 
-        .comment-dot { position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; border: 1px solid white; }
-        
-        /* PowerPoint Style Action Bar */
-        .action-bar {
-            border-top: 1px solid rgba(0,0,0,0.05);
-            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.1);
-            z-index: 100;
+        .dark .cell-box {
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4), 
+                        inset 1px 1px 0px rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.05);
         }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        @media (orientation: landscape) {
+            .main-header { padding: 0.4rem 1rem !important; }
+            td, th { height: 40px !important; min-width: 60px !important; }
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: max-content;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: inherit;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            z-index: 45;
+            background-color: inherit;
+            width: 65px;
+            min-width: 65px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .sticky-corner {
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 60;
+            background-color: inherit;
+        }
+
+        .dark .sticky-col, .dark thead th { border-color: #1e293b; }
+
+        #path-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 30;
+            overflow: visible;
+        }
+
+        .connection-line {
+            fill: none;
+            stroke: #f59e0b;
+            stroke-width: 3.5;
+            stroke-dasharray: 10, 5;
+            animation: dash 20s linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes dash { to { stroke-dashoffset: -500; } }
+
+        .comment-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 7px;
+            height: 7px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(37, 99, 235, 0.1);
+            border-left-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Excel Toolbar Animation */
+        .excel-menu-enter {
+            animation: slideDown 0.2s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 transition-colors duration-300">
@@ -59,22 +167,37 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
         const API_URL = 'https://sheetdb.io/api/v1/x9azbgwzmy3a7';
-        const VIBRANT_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#0ea5e9', '#3b82f6', '#8b5cf6', '#ec4899', '#71717a', ''];
 
-        const getContrastYIQ = (hex) => {
-            if (!hex) return 'inherit';
-            const r = parseInt(hex.substring(1,3), 16), g = parseInt(hex.substring(3,5), 16), b = parseInt(hex.substring(5,7), 16);
-            return ((r*299)+(g*587)+(b*114))/1000 >= 128 ? 'black' : 'white';
+        // Vibrant Colors for Toolbar
+        const QUICK_COLORS = [
+            '#ef4444', '#f97316', '#f59e0b', '#22c55e', '#0ea5e9', '#6366f1', '#a855f7', '#71717a', ''
+        ];
+
+        const getContrastYIQ = (hexcolor) => {
+            if (!hexcolor) return 'inherit';
+            hexcolor = hexcolor.replace("#", "");
+            const r = parseInt(hexcolor.substr(0, 2), 16);
+            const g = parseInt(hexcolor.substr(2, 2), 16);
+            const b = parseInt(hexcolor.substr(4, 2), 16);
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return (yiq >= 128) ? 'black' : 'white';
         };
 
         const App = () => {
             const [data, setData] = useState([]);
-            const [selectedId, setSelectedId] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [selected, setSelected] = useState([]);
+            const [editCell, setEditCell] = useState(null);
             const [styles, setStyles] = useState({});
             const [comments, setComments] = useState({});
             const [search, setSearch] = useState("");
             const [dark, setDark] = useState(false);
+            const [lineCoords, setLineCoords] = useState([]);
+            const [showExcelMenu, setShowExcelMenu] = useState(false);
             
+            const tableRef = useRef(null);
+            const menuTimeoutRef = useRef(null);
+
             useEffect(() => {
                 const load = async () => {
                     const cached = localStorage.getItem('la_data');
@@ -82,24 +205,30 @@
                     setStyles(JSON.parse(localStorage.getItem('la_styles') || '{}'));
                     setComments(JSON.parse(localStorage.getItem('la_comments') || '{}'));
                     setDark(localStorage.getItem('la_dark') === 'true');
+
                     try {
                         const res = await fetch(API_URL);
                         const json = await res.json();
-                        if (Array.isArray(json)) { setData(json); localStorage.setItem('la_data', JSON.stringify(json)); }
-                    } catch (e) { console.error(e); }
+                        if (Array.isArray(json)) {
+                            setData(json);
+                            localStorage.setItem('la_data', JSON.stringify(json));
+                        }
+                    } catch (e) { console.error(e); } finally { setLoading(false); }
                 };
                 load();
             }, []);
 
             const organized = useMemo(() => {
                 const map = {};
-                data.forEach(item => {
-                    const d = new Date(item.date);
-                    const y = d.getFullYear();
-                    if (!map[y]) map[y] = Array(24).fill(null);
-                    const idx = d.getMonth() * 2 + (d.getDate() >= 16 ? 1 : 0);
-                    map[y][idx] = String(item.number || "");
-                });
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        const d = new Date(item.date);
+                        const y = d.getFullYear();
+                        if (!map[y]) map[y] = Array(24).fill(null);
+                        const idx = d.getMonth() * 2 + (d.getDate() >= 16 ? 1 : 0);
+                        map[y][idx] = String(item.number || "");
+                    });
+                }
                 let years = Object.keys(map).sort((a, b) => Number(a) - Number(b)).map(Number);
                 if (years.length === 0) years = [new Date().getFullYear()];
                 const next = years[years.length - 1] + 1;
@@ -108,68 +237,190 @@
                 return { map, years };
             }, [data]);
 
-            const activeNum = search || (selectedId ? organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]] : null);
+            const activeNum = useMemo(() => {
+                if (search) return search;
+                if (!selected.length) return null;
+                const [y, r] = selected[selected.length - 1].split('-');
+                return organized.map[y]?.[r];
+            }, [selected, organized, search]);
 
-            const updateValue = (id, num, comm, color) => {
-                const [y, r] = id.split('-');
-                const newStyles = { ...styles, [id]: color };
-                const newComms = { ...comments, [id]: comm };
-                setStyles(newStyles); setComments(newComms);
-                localStorage.setItem('la_styles', JSON.stringify(newStyles));
-                localStorage.setItem('la_comments', JSON.stringify(newComms));
-                const newData = [...data];
-                const dateStr = `${y}-${String(Math.floor(r/2)+1).padStart(2,'0')}-${r%2===0?'01':'16'}`;
-                const idx = newData.findIndex(d => d.date === dateStr);
-                if (idx > -1) newData[idx].number = num; else newData.push({ date: dateStr, number: num });
-                setData(newData); localStorage.setItem('la_data', JSON.stringify(newData));
+            const updateLines = () => {
+                if (!activeNum || !tableRef.current) { setLineCoords([]); return; }
+                const coords = [];
+                organized.years.forEach(y => {
+                    organized.map[y]?.forEach((val, r) => {
+                        if (val === activeNum) {
+                            const cell = tableRef.current.querySelector(`[data-id="${y}-${r}"]`);
+                            if (cell) coords.push({ x: cell.offsetLeft + cell.offsetWidth / 2, y: cell.offsetTop + cell.offsetHeight / 2 });
+                        }
+                    });
+                });
+                setLineCoords(coords);
             };
 
             useEffect(() => {
-                document.body.className = dark ? 'bg-slate-950 text-slate-100 dark' : 'bg-slate-50 text-slate-900';
+                updateLines();
                 if (window.lucide) window.lucide.createIcons();
-            }, [dark, selectedId]);
+            }, [activeNum, organized, showExcelMenu]);
+
+            const resetMenuTimer = () => {
+                if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
+                menuTimeoutRef.current = setTimeout(() => setShowExcelMenu(false), 5000);
+            };
+
+            const handleCellClick = (id, y, r, num) => {
+                setSelected([id]);
+                setEditCell({ id, y, r, num: num || "" });
+                setShowExcelMenu(true);
+                resetMenuTimer();
+            };
+
+            const saveQuickEdit = (updates) => {
+                const { num, comm, color } = updates;
+                const id = editCell.id;
+                
+                const newComms = { ...comments };
+                if (comm !== undefined) newComms[id] = comm;
+                
+                const newStyles = { ...styles };
+                if (color !== undefined) newStyles[id] = color;
+                
+                setComments(newComms);
+                setStyles(newStyles);
+                localStorage.setItem('la_comments', JSON.stringify(newComms));
+                localStorage.setItem('la_styles', JSON.stringify(newStyles));
+                
+                if (num !== undefined) {
+                    const newData = [...data];
+                    const dateStr = `${editCell.y}-${String(Math.floor(editCell.r/2)+1).padStart(2,'0')}-${editCell.r%2===0?'01':'16'}`;
+                    const idx = newData.findIndex(d => d.date === dateStr);
+                    if (idx > -1) newData[idx].number = num;
+                    else newData.push({ date: dateStr, number: num });
+                    setData(newData);
+                    localStorage.setItem('la_data', JSON.stringify(newData));
+                }
+                resetMenuTimer();
+            };
 
             return (
                 <div className="app-container p-2">
-                    {/* Original Header Style */}
-                    <div className={`flex justify-between items-center mb-2 p-2 rounded-xl shadow-sm ${dark ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i data-lucide="palette" className="w-4 h-4"></i></div>
-                            <div>
-                                <h1 className="text-sm font-black text-blue-600 leading-none">အာကာစိုး</h1>
-                                <p className="text-[9px] font-bold opacity-60 mt-0.5">တွက်နည်းတစ်ထောင်</p>
+                    {/* Excel Style Toolbar (Auto-hides) */}
+                    {showExcelMenu && editCell && (
+                        <div className="excel-menu-enter fixed top-0 left-0 right-0 z-[100] bg-white dark:bg-slate-900 shadow-2xl border-b border-blue-200 dark:border-blue-900 p-2 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-blue-600 px-2 py-1 rounded text-white text-[10px] font-bold">
+                                    {editCell.y}
+                                </div>
+                                <input 
+                                    type="number" 
+                                    className="w-14 h-9 border-2 border-blue-100 dark:border-slate-700 dark:bg-slate-800 rounded-lg text-center font-black text-lg focus:border-blue-500 outline-none"
+                                    value={editCell.num}
+                                    onChange={(e) => {
+                                        setEditCell({...editCell, num: e.target.value});
+                                        saveQuickEdit({ num: e.target.value });
+                                    }}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1.5 px-2 border-l border-slate-200 dark:border-slate-700">
+                                {QUICK_COLORS.map(c => (
+                                    <button 
+                                        key={c}
+                                        onClick={() => saveQuickEdit({ color: c })}
+                                        className="w-6 h-6 rounded-full border border-white dark:border-slate-800 shadow-sm"
+                                        style={{ background: c || (dark ? '#334155' : '#e2e8f0') }}
+                                    >
+                                        {!c && <i data-lucide="droplet" className="w-3 h-3 mx-auto opacity-40"></i>}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => {
+                                        const note = prompt("မှတ်ချက်ရေးရန်:", comments[editCell.id] || "");
+                                        if (note !== null) saveQuickEdit({ comm: note });
+                                    }}
+                                    className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
+                                >
+                                    <i data-lucide="edit-3" className="w-4 h-4"></i>
+                                </button>
+                                <button onClick={() => setShowExcelMenu(false)} className="p-2 text-slate-400">
+                                    <i data-lucide="chevron-up" className="w-4 h-4"></i>
+                                </button>
                             </div>
                         </div>
-                        <button onClick={() => setDark(!dark)} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800"><i data-lucide={dark ? "sun" : "moon"} className="w-4 h-4"></i></button>
+                    )}
+
+                    <div className={`main-header flex justify-between items-center mb-2 p-3 rounded-2xl shadow-sm ${dark ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                                <i data-lucide="table-2" className="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h1 className="text-md font-black text-blue-600 leading-none">အာကာစိုး</h1>
+                                <p className="text-[9px] font-bold opacity-50">Smart Excel Table</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={() => setDark(!dark)} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
+                                <i data-lucide={dark ? "sun" : "moon"} className="w-4 h-4"></i>
+                            </button>
+                            <button onClick={() => {setSelected([]); setSearch(""); setShowExcelMenu(false);}} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase">Clear</button>
+                        </div>
                     </div>
 
-                    {/* Table Area with Original 3D Style */}
+                    {activeNum && (
+                        <div className={`mb-2 p-2 rounded-xl border-l-4 border-amber-500 shadow-sm ${dark ? 'bg-slate-900' : 'bg-white'}`}>
+                            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                                <span className="text-lg font-black text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-0.5 rounded-md">{activeNum}</span>
+                                <div className="flex gap-1">
+                                    {organized.years.flatMap(y => organized.map[y].map((v, r) => v === activeNum ? `${y}/${r+1}` : null).filter(Boolean)).map((m, i) => (
+                                        <span key={i} className="text-[9px] font-bold opacity-50 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">{m}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className={`table-wrapper no-scrollbar ${dark ? 'bg-slate-950 border border-slate-800' : 'bg-white'}`}>
-                        <table>
+                        <svg id="path-svg" width={tableRef.current?.scrollWidth || 0} height={tableRef.current?.scrollHeight || 0}>
+                            {lineCoords.length > 1 && (
+                                <path className="connection-line" d={`M ${lineCoords[0].x} ${lineCoords[0].y} ${lineCoords.slice(1).map(c => `L ${c.x} ${c.y}`).join(' ')}`} />
+                            )}
+                        </svg>
+                        
+                        <table ref={tableRef}>
                             <thead>
-                                <tr className={dark ? 'bg-slate-900' : 'bg-slate-100'}>
-                                    <th className="sticky-corner sticky-col text-blue-600 text-[10px]">အကြိမ်</th>
-                                    {organized.years.map(y => <th key={y} className="font-black text-blue-600 text-[11px] py-2">{y}</th>)}
+                                <tr className={dark ? 'bg-slate-900 text-slate-400' : 'bg-slate-100 text-slate-500'}>
+                                    <th className="sticky-corner sticky-col z-[60]">အကြိမ်</th>
+                                    {organized.years.map(y => <th key={y} className="text-[10px] font-black">{y}</th>)}
                                 </tr>
                             </thead>
                             <tbody>
                                 {Array.from({ length: 24 }).map((_, rIdx) => (
                                     <tr key={rIdx}>
                                         <td className={`sticky-col ${dark ? 'bg-slate-900' : 'bg-white'}`}>
-                                            <div className="flex flex-col leading-none">
-                                                <span className="text-[12px] font-black">{rIdx + 1}</span>
-                                                <span className="text-[7px] opacity-40">{rIdx % 2 === 0 ? '၁' : '၁၆'}</span>
-                                            </div>
+                                            <span className="text-sm font-black">{rIdx + 1}</span>
+                                            <span className="block text-[8px] opacity-40">{rIdx % 2 === 0 ? '၁' : '၁၆'}</span>
                                         </td>
                                         {organized.years.map(y => {
-                                            const id = `${y}-${rIdx}`, num = organized.map[y]?.[rIdx];
-                                            const isSelected = selectedId === id, isMatched = activeNum && num === activeNum;
-                                            const bgColor = isMatched ? '#2563eb' : (styles[id] || (dark ? "#1e293b" : "#ffffff"));
+                                            const id = `${y}-${rIdx}`;
+                                            const num = organized.map[y]?.[rIdx];
+                                            const isSelected = selected.includes(id) || (activeNum && num === activeNum);
+                                            const cellColor = styles[id] || (dark ? "#1e293b" : "#ffffff");
+                                            
                                             return (
-                                                <td key={y} onClick={() => setSelectedId(id)}>
-                                                    <div className={`cell-box ${isSelected ? 'cell-selected' : ''}`} style={{ backgroundColor: bgColor, color: (isMatched || styles[id]) ? 'white' : 'inherit' }}>
-                                                        <span className="font-bold">{num}</span>
-                                                        {comments[id] && <div className="comment-dot" style={{borderColor: bgColor}}></div>}
+                                                <td key={y} data-id={id} 
+                                                    onClick={() => handleCellClick(id, y, rIdx, num)}
+                                                >
+                                                    <div className="cell-box" style={{ 
+                                                        backgroundColor: isSelected ? '#2563eb' : cellColor,
+                                                        color: isSelected ? 'white' : getContrastYIQ(styles[id]),
+                                                        borderBottom: isSelected ? '2px solid #1e3a8a' : 'none'
+                                                    }}>
+                                                        <span className="font-bold">{num || "."}</span>
+                                                        {comments[id] && <div className="comment-dot" />}
                                                     </div>
                                                 </td>
                                             );
@@ -180,50 +431,14 @@
                         </table>
                     </div>
 
-                    {/* Search Bar - Original Style */}
-                    {!selectedId && (
-                        <div className={`p-2 rounded-xl border flex items-center gap-2 mb-1 ${dark ? 'bg-slate-900/90 border-slate-700' : 'bg-white/90 border-slate-200'}`}>
-                            <i data-lucide="search" className="w-3.5 h-3.5 opacity-40 ml-1"></i>
-                            <input type="number" placeholder="ရှာရန်..." className="bg-transparent w-full outline-none text-xs font-bold" value={search} onChange={e => setSearch(e.target.value)} />
-                        </div>
-                    )}
-
-                    {/* Action Bar (PowerPoint Style) */}
-                    {selectedId && (
-                        <div className={`action-bar p-3 pb-8 rounded-t-3xl shadow-2xl ${dark ? 'bg-slate-900 border-t border-slate-700' : 'bg-white'}`}>
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                                    {selectedId.split('-')[0]} - အကြိမ် ({parseInt(selectedId.split('-')[1]) + 1})
-                                </span>
-                                <button onClick={() => setSelectedId(null)} className="text-xs font-black text-slate-400">DONE</button>
-                            </div>
-                            
-                            <div className="flex gap-2 mb-4">
-                                <input 
-                                    type="number" className={`w-16 h-12 text-center font-black text-2xl rounded-xl border-2 ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
-                                    value={organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]] || ""}
-                                    onChange={(e) => updateValue(selectedId, e.target.value, comments[selectedId], styles[selectedId])}
-                                />
-                                <input 
-                                    type="text" className={`flex-1 h-12 px-4 text-sm rounded-xl border ${dark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}
-                                    placeholder="မှတ်ချက်ရေးရန်..." value={comments[selectedId] || ""}
-                                    onChange={(e) => updateValue(selectedId, organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]], e.target.value, styles[selectedId])}
-                                />
-                            </div>
-
-                            <div className="flex justify-between overflow-x-auto no-scrollbar gap-2">
-                                {VIBRANT_COLORS.map(c => (
-                                    <button 
-                                        key={c} onClick={() => updateValue(selectedId, organized.map[selectedId.split('-')[0]]?.[selectedId.split('-')[1]], comments[selectedId], c)}
-                                        className="w-9 h-9 rounded-full border-2 border-white shrink-0 shadow-sm transition-transform active:scale-90"
-                                        style={{ background: c || (dark ? '#334155' : '#e2e8f0') }}
-                                    >
-                                        {!c && <i data-lucide="slash" className="w-3 h-3 mx-auto opacity-30"></i>}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${dark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                        <i data-lucide="search" className="w-4 h-4 opacity-30"></i>
+                        <input 
+                            type="number" placeholder="နံပါတ်ဖြင့်ရှာရန်..." 
+                            className="bg-transparent w-full outline-none text-sm font-bold"
+                            value={search} onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
                 </div>
             );
         };
